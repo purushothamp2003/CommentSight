@@ -90,12 +90,7 @@
                 POSITIVE REVIEWS -->{{np}}/{{n}}</p>
         </div>
 
-        <div class='col-md-4'
-            style='text-align: center;width: 57%;margin: 0 auto;border-radius: 2.25rem;margin-top: 30px;'>
-            <p
-                style="padding-top: 5px;padding-bottom: 5px;width: 70%;background-color: grey;font-weight: bold;margin: 0 auto;border-radius: 1.25rem;">
-                NEUTRAL REVIEWS --> {{nne}}/{{n}}</p>
-        </div>
+        
 
         <div class='col-md-4'
             style='text-align: center;width: 57%;margin: 0 auto;border-radius: 2.25rem;margin-top: 30px;'>
@@ -103,6 +98,16 @@
                 style="padding-top: 5px;padding-bottom: 5px;width: 70%;background-color: indianred;font-weight: bold;margin: 0 auto;border-radius: 1.25rem;">
                 NEGATIVE REVIEWS --> {{nn}}/{{n}}</p>
         </div>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <form action="/summarize" method="post">
+                {% for comment in dic %}
+                <input type="hidden" name="comments" value="{{ comment.org_comment }}">
+                {% endfor %}
+                <button type="submit" class="btn btn-primary">Summarize</button>
+            </form>
+        </div>
+        
     </div>
 
 
@@ -132,13 +137,6 @@
         </div>
     </div>
     {% endfor %}
-
-
-    <footer class='text-light bg-dark position-relative '>
-        <p class='text-center py-1 my-0'>
-            Made with ❤ by Abhishek Sharma
-        </p>
-    </footer>
 
 
     <!-- Optional JavaScript -->

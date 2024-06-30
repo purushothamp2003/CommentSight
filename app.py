@@ -1,5 +1,5 @@
 
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, render_template, jsonify , session
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 import logging
@@ -12,6 +12,9 @@ import re
 import emoji
 from langdetect import detect
 from transformers import pipeline
+from transformers import BartTokenizer, BartForConditionalGeneration
+import json 
+
 
 
 nltk.download('vader_lexicon')
@@ -23,6 +26,8 @@ sia = SentimentIntensityAnalyzer()
 stop_words = stopwords.words('english')
 
 app = Flask(__name__)
+app.secret_key = 'pruthvi@2003'  # Set your secret key here
+
 
 # Setup logging
 logging.basicConfig(level=logging.DEBUG)
@@ -80,18 +85,7 @@ def get_comments(video_id, max_results=100):
 #     return y
 
 def map_comments_to_labels(clean_comments, sentiment_analysis_output):
-  """
-  Maps each comment to its corresponding sentiment label.
-
-  Args:
-      clean_comments: A list of cleaned comments (strings).
-      sentiment_analysis_output: A list of dictionaries from the sentiment analysis model,
-                                  containing "label" and "score" keys for each comment.
-
-  Returns:
-      A list of tuples, where each tuple contains the original comment (string)
-      and its corresponding sentiment label (string).
-  """
+  
 
   # Check if list lengths match to avoid index errors
   if len(clean_comments) != len(sentiment_analysis_output):
@@ -129,6 +123,7 @@ def clean_comments(comments):
   return cleaned_comments
 
 
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -159,6 +154,8 @@ def results():
     clean_commentso1 = sentiment_model(clean_commentso)
 
     clean_commentso12 = map_comments_to_labels(clean_commentso , clean_commentso1)
+
+    print(clean_commentso12)
  
     predictions = []
 
@@ -175,10 +172,10 @@ def results():
         score = sentiment_dict["score"]  # Access score using dictionary key
         scores.append(score)
 
-        if label == 'LABEL_0':
+        if label == 'LABEL_1':
             predictions.append('POSITIVE')
             np += 1
-        elif label == 'LABEL_1':
+        elif label == 'LABEL_0':
             predictions.append('NEGATIVE')
             nn += 1
         else:
@@ -191,16 +188,59 @@ def results():
         x={}
         x['sent'] = predictions[i]
         x['clean_comment'] = cc
-        x['org_comment'] = comments[i]
+        x['org_comment'] = cc
         x['score'] = scores
         dic.append(x)
+
+
+
+    model_name = "facebook/bart-large-cnn"
+    tokenizer = BartTokenizer.from_pretrained(model_name)
+    model = BartForConditionalGeneration.from_pretrained(model_name)
+
+
+
+# Concatenate all comments into a single string
+    text = " ".join([comment for comment in clean_commentso])
+
+# Step 3: Tokenize the input text
+    inputs = tokenizer.encode("summarize: " + text, return_tensors="pt", max_length=1024, truncation=True)
+
+# Step 4: Generate the summary
+    summary_ids = model.generate(inputs, max_length=150, min_length=40, length_penalty=2.0, num_beams=4, early_stopping=True)
+
+# Step 5: Decode and print the summary
+    summary = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
+
+    session['summary'] = summary 
+
+
+    print(summary)
+
+
 
     return render_template('result.html',n=len(clean_commentso),nn=nn,np=np,nne=nne,dic=dic)
 
 
-    
+@app.route('/summarize', methods=['POST'])
+def summarize():
+    # comments = request.form.get('clean_commentso')
+    # model_name = "facebook/bart-large-cnn"
+    # tokenizer = BartTokenizer.from_pretrained(model_name)
+    # model = BartForConditionalGeneration.from_pretrained(model_name)
 
-    # return clean_commentso12
+    # text = " ".join(comments)
+
+    # inputs = tokenizer.encode("summarize: " + text, return_tensors="pt", max_length=1024, truncation=True)
+
+    # summary_ids = model.generate(inputs, max_length=150, min_length=40, length_penalty=2.0, num_beams=4, early_stopping=True)
+
+    # summaryy = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
+    summary = session.get('summary')
+
+
+    return render_template('summarize.html', summary=summary)
+
 
 
 
