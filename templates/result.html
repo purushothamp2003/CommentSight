@@ -1,6 +1,5 @@
 <!doctype html>
 <html lang="en">
-
 <style>
     * {
         padding: 0;
@@ -61,83 +60,66 @@
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
-
                 <li class="nav-item">
                     <a class="nav-link" href="/wc" target="_blank">Wordcloud</a>
                 </li>
-
+            </ul>
         </div>
     </nav>
-
 
     <div>
         <h1 style="text-align: center;padding-top: 15px;padding-bottom: 15px;color:whitesmoke;font-size:44px;">Youtube
             Video Comments Sentiment Analyzer</h1>
     </div>
 
-    <div style="    text-align: center;width: 77%;margin: 0 auto;">
-        <h2 style='background-color: antiquewhite;
-        font-size: 29px;
-        border-radius: 1.25rem;
-        padding: 10px;'><b>Following are the top {{ n }} comments on the Video...</b></h2>
+    <div style="text-align: center;width: 77%;margin: 0 auto;">
+        <h2 style='background-color: antiquewhite; font-size: 29px; border-radius: 1.25rem; padding: 10px;'><b>Following are the top {{ n }} comments on the Video...</b></h2>
     </div>
 
     <div class='row'>
-        <div class='col-md-4'
-            style='text-align: center;width: 57%;margin: 0 auto;border-radius: 2.25rem;margin-top: 30px;'>
-            <p
-                style='padding-top: 5px;padding-bottom: 5px;border-radius: 1.25rem;width: 70%;background-color: palegreen;font-weight: bold;margin: 0 auto;'>
-                POSITIVE REVIEWS -->{{np}}/{{n}}</p>
+        <div class='col-md-4' style='text-align: center;width: 57%;margin: 0 auto;border-radius: 2.25rem;margin-top: 30px;'>
+            <p style='padding-top: 5px;padding-bottom: 5px;border-radius: 1.25rem;width: 70%;background-color: palegreen;font-weight: bold;margin: 0 auto;'>POSITIVE REVIEWS -->{{np}}/{{n}}</p>
         </div>
 
-        
-
-        <div class='col-md-4'
-            style='text-align: center;width: 57%;margin: 0 auto;border-radius: 2.25rem;margin-top: 30px;'>
-            <p
-                style="padding-top: 5px;padding-bottom: 5px;width: 70%;background-color: indianred;font-weight: bold;margin: 0 auto;border-radius: 1.25rem;">
-                NEGATIVE REVIEWS --> {{nn}}/{{n}}</p>
+        <div class='col-md-4' style='text-align: center;width: 57%;margin: 0 auto;border-radius: 2.25rem;margin-top: 30px;'>
+            <p style="padding-top: 5px;padding-bottom: 5px;width: 70%;background-color: indianred;font-weight: bold;margin: 0 auto;border-radius: 1.25rem;">NEGATIVE REVIEWS --> {{nn}}/{{n}}</p>
         </div>
 
         <div style="text-align: center; margin-top: 20px;">
             <form action="/summarize" method="post">
                 {% for comment in dic %}
-                <input type="hidden" name="comments" value="{{ comment.org_comment }}">
+                <input type="hidden" name="clean_commentso" value="{{ comment.clean_comment }}">
                 {% endfor %}
                 <button type="submit" class="btn btn-primary">Summarize</button>
             </form>
         </div>
-        
     </div>
-
 
     {% for obj in dic %}
     <div class="card my-5 " style="max-width: 1000px;">
         <div class="row" style='align-items:center'>
             <div class="col-md-12">
-                {% if obj['sent'] =='POSITIVE' %}
+                {% if obj['sent'] == 'POSITIVE' %}
                 <div class="card-body" style="background-color:palegreen;">
                     <p class="card-text" style="font-size:20px;">{{ obj['org_comment'] }} </p>
                 </div>
                 {% endif %}
 
-                {% if obj['sent'] =='NEUTRAL' %}
+                {% if obj['sent'] == 'NEUTRAL' %}
                 <div class="card-body" style="background-color:grey;">
                     <p class="card-text" style="font-size:20px;">{{ obj['org_comment'] }} </p>
                 </div>
                 {% endif %}
 
-                {% if obj['sent'] =='NEGATIVE' %}
+                {% if obj['sent'] == 'NEGATIVE' %}
                 <div class="card-body" style="background-color:indianred;">
                     <p class="card-text" style="font-size:20px;">{{ obj['org_comment'] }} </p>
                 </div>
                 {% endif %}
-
             </div>
         </div>
     </div>
     {% endfor %}
-
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
