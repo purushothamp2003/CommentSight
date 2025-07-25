@@ -19,4 +19,4 @@ def summarize():
     summaryy = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
     summary = session.get('summary')
 
-    return render_template('summarize.html', summary=summary)
+    return render_template('summarize.html', summary=summaryy)
